@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Самопомощь — ИИС психологической самопомощи</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- ===================== ЭКРАН АВТОРИЗАЦИИ ===================== -->
+  <section id="auth-screen" class="auth-screen">
+    <div class="auth-card">
+      <h1 class="brand">🌿 Самопомощь</h1>
+      <p class="auth-subtitle">Первичная психологическая поддержка и мониторинг состояния</p>
+
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="login" role="tab">Вход</button>
+        <button class="tab" data-tab="register" role="tab">Регистрация</button>
+      </div>
+
+      <!-- Вход -->
+      <form id="login-form" class="auth-form" data-auth="login">
+        <label>Email
+          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
+        </label>
+        <label>Пароль
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+        </label>
+        <button type="submit" class="btn btn-primary">Войти</button>
+      </form>
+
+      <!-- Регистрация -->
+      <form id="register-form" class="auth-form hidden" data-auth="register">
+        <label>Email
+          <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" />
+        </label>
+        <label>Пароль (минимум 6 символов)
+          <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password" />
+        </label>
+        <label class="consent">
+          <input type="checkbox" id="reg-consent" />
+          <span>Я даю согласие на обработку персональных данных в соответствии с
+          ФЗ-152 «О персональных данных»</span>
+        </label>
+        <button type="submit" class="btn btn-primary">Создать аккаунт</button>
+      </form>
+
+      <p id="auth-error" class="error hidden"></p>
+      <p class="auth-note">Демо-MVP: данные хранятся локально. Это не замена профессиональной помощи.</p>
+    </div>
+  </section>
+
+  <!-- ===================== ПРИЛОЖЕНИЕ ===================== -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand sidebar-brand">🌿 Самопомощь</div>
+      <nav class="nav">
+        <button class="nav-link active" data-page="dashboard">🏠 Главная</button>
+        <button class="nav-link" data-page="diary">📖 Дневник</button>
+        <button class="nav-link" data-page="tests">📝 Тесты</button>
+        <button class="nav-link" data-page="techniques">🧘 Техники КПТ</button>
+        <button class="nav-link" data-page="progress">📈 Динамика</button>
+        <button class="nav-link" data-page="psychologists">👩‍⚕️ Психологи</button>
+        <button class="nav-link" data-page="report">📄 Отчёт</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-crisis" id="btn-crisis-nav">🆘 Нужна помощь</button>
+        <div class="user-box">
+          <span id="user-email"></span>
+          <button class="link" id="btn-logout">Выйти</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h2 id="page-title">Главная</h2>
+      </header>
+
+      <!-- Главная -->
+      <section class="page active" data-page="dashboard">
+        <div class="cards">
+          <div class="card">
+            <h3>Дневник состояния</h3>
+            <p>Записывайте мысли текстом или голосом — ИИ проанализирует тональность, триггеры и когнитивные искажения.</p>
+            <button class="btn btn-primary" data-goto="diary">Открыть дневник</button>
+          </div>
+          <div class="card">
+            <h3>Экспресс-тесты</h3>
+            <p>Валидированные шкалы GAD-7 и PHQ-9 с автоматическим расчётом баллов.</p>
+            <button class="btn btn-primary" data-goto="tests">Пройти тест</button>
+          </div>
+          <div class="card">
+            <h3>Техники самопомощи</h3>
+            <p>Персональные упражнения КПТ, подобранные под ваши записи.</p>
+            <button class="btn btn-primary" data-goto="techniques">К техникам</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Последняя запись</h3>
+          <div id="dash-last-entry">Записей пока нет — начните с дневника.</div>
+        </div>
+      </section>
+
+      <!-- Дневник -->
+      <section class="page" data-page="diary">
+        <div class="card">
+          <h3>Новая запись</h3>
+          <div class="diary-editor">
+            <textarea id="diary-text" rows="5" placeholder="Опишите, что происходит, что вы чувствуете..."></textarea>
+            <div class="diary-tools">
+              <label class="mood-picker">
+                Настроение (1–10):
+                <input type="range" id="diary-mood" min="1" max="10" value="5" />
+                <span id="diary-mood-value">5</span>
+              </label>
+              <div class="diary-actions">
+                <button class="btn" id="btn-voice" title="Голосовой ввод (транскрибация — точка подключения)">
+                  🎙 Голос
+                </button>
+                <button class="btn btn-primary" id="btn-save-entry">Сохранить и проанализировать</button>
+              </div>
+            </div>
+            <p class="hint" id="voice-hint" hidden>
+              Голосовой ввод: здесь подключается модуль записи и транскрибации речи в реальном времени
+              (см. README, раздел «Модуль ввода и фиксации данных»).
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>История записей</h3>
+          <div id="diary-list" class="list"></div>
+        </div>
+      </section>
+
+      <!-- Тесты -->
+      <section class="page" data-page="tests">
+        <div class="card">
+          <h3>Выберите шкалу</h3>
+          <div class="tabs">
+            <button class="tab active" data-scale="gad7">GAD-7 (тревога)</button>
+            <button class="tab" data-scale="phq9">PHQ-9 (депрессия)</button>
+          </div>
+          <div id="test-body">
+            <p>Выберите шкалу и ответьте на вопросы.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Техники -->
+      <section class="page" data-page="techniques">
+        <div class="card">
+          <h3>База техник КПТ</h3>
+          <div id="techniques-list" class="list"></div>
+        </div>
+      </section>
+
+      <!-- Динамика -->
+      <section class="page" data-page="progress">
+        <div class="card">
+          <h3>Настроение по дневнику</h3>
+          <canvas id="chart-mood" width="640" height="240"></canvas>
+          <p id="mood-empty" class="hint">Данных пока нет — добавьте запись с оценкой настроения.</p>
+        </div>
+        <div class="card">
+          <h3>Баллы по шкалам (GAD-7 / PHQ-9)</h3>
+          <canvas id="chart-tests" width="640" height="240"></canvas>
+          <p id="tests-empty" class="hint">Данных пока нет — пройдите тест.</p>
+        </div>
+      </section>
+
+      <!-- Психологи -->
+      <section class="page" data-page="psychologists">
+        <div class="card">
+          <h3>Каталог специалистов</h3>
+          <p class="hint">Демо-каталог. Здесь подключается маршрутизация заявок к специалистам.</p>
+          <div id="psychologists-list" class="list"></div>
+        </div>
+      </section>
+
+      <!-- Отчёт -->
+      <section class="page" data-page="report">
+        <div class="card">
+          <h3>Сводный отчёт</h3>
+          <p class="hint">Здесь формируется структурированный отчёт для специалиста (PDF-экспорт — точка подключения).</p>
+          <div id="report-body" class="report"></div>
+          <button class="btn" id="btn-export-report" disabled>Экспорт PDF (скоро)</button>
+        </div>
+      </section>
+
+      <!-- Кризисная помощь -->
+      <section class="page" data-page="crisis">
+        <div class="card crisis-card">
+          <h3>🆘 Экстренная помощь</h3>
+          <p class="crisis-disclaimer" id="crisis-disclaimer"></p>
+          <div id="crisis-contacts" class="list"></div>
+          <button class="btn" data-goto="diary">Вернуться к дневнику</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

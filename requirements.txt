@@ -1,0 +1,3 @@
+# MVP работает на стандартной библиотеке Python — внешние зависимости не нужны.
+# Файл оставлен пустым, чтобы дефолтный билд Render (pip install -r requirements.txt)
+# проходил мгновенно. Стек для переноса на FastAPI см. в requirements-fastapi.txt.

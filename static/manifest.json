@@ -1,0 +1,9 @@
+{
+  "name": "Самопомощь — ИИС психологической самопомощи",
+  "short_name": "Самопомощь",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#2f855a",
+  "lang": "ru"
+}

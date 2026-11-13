@@ -1,0 +1,18 @@
+# Промышленный стек (для переноса MVP с stdlib на FastAPI/PostgreSQL).
+# Текущий MVP работает без установки пакетов: см. README.
+# Этот файл НЕ используется при деплое на Render (там requirements.txt пуст).
+
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+sqlalchemy>=2.0
+psycopg2-binary>=2.9       # или asyncpg
+python-jose[cryptography]  # JWT
+passlib[bcrypt]            # хэширование паролей
+python-multipart           # формы/загрузка аудио
+
+# Интеллектуальный конвейер (по ВКР):
+# transformers, torch — тональность (BERT/RoBERTa)
+# langchain / llama-index — RAG-поиск по базе знаний КПТ
+# pgvector / qdrant-client — векторная БД
+# openai / anthropic / langchain-community — LLM для выявления искажений
