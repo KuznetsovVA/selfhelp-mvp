@@ -145,10 +145,11 @@ function navigate(page) {
   state.page = page;
   closeDrawer();
   $$(".page").forEach((p) => p.classList.toggle("active", p.dataset.page === page));
+  // Подсвечиваем пункт во ВСЕХ меню (десктопное + мобильное)
   $$(".nav-link").forEach((n) => n.classList.toggle("active", n.dataset.page === page));
   $("#page-title").textContent = PAGE_TITLES[page] || "Самопомощь";
   // Прокрутка к началу страницы: на телефоне иначе остаёшься в середине.
-  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  window.scrollTo(0, 0);
   const loaders = {
     dashboard: loadDashboard,
     diary: loadDiary,
@@ -162,19 +163,23 @@ function navigate(page) {
 }
 
 function closeDrawer() {
-  const nav = $("#app-nav");
+  const drawer = $("#app-nav-drawer");
   const backdrop = $("#backdrop");
-  if (nav) nav.classList.remove("open");
+  if (drawer) drawer.classList.remove("open");
   if (backdrop) backdrop.classList.remove("visible");
   document.body.classList.remove("drawer-open");
+  const menuBtn = $("#btn-menu");
+  if (menuBtn) menuBtn.setAttribute("aria-expanded", "false");
 }
 
 function openDrawer() {
-  const nav = $("#app-nav");
+  const drawer = $("#app-nav-drawer");
   const backdrop = $("#backdrop");
-  if (nav) nav.classList.add("open");
+  if (drawer) drawer.classList.add("open");
   if (backdrop) backdrop.classList.add("visible");
   document.body.classList.add("drawer-open");
+  const menuBtn = $("#btn-menu");
+  if (menuBtn) menuBtn.setAttribute("aria-expanded", "true");
 }
 
 function isMobile() {
@@ -454,8 +459,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#login-form").addEventListener("submit", doLogin);
   $("#register-form").addEventListener("submit", doRegister);
 
-  $$(".nav-link").forEach((n) => n.addEventListener("click", () => navigate(n.dataset.page)));
-  $$("[data-goto]").forEach((b) => b.addEventListener("click", () => navigate(b.dataset.goto)));
   $("#btn-logout").addEventListener("click", () => { api("POST", "/api/logout", {}).catch(() => {}); logout(); });
   $("#btn-logout-mobile").addEventListener("click", () => { api("POST", "/api/logout", {}).catch(() => {}); logout(); });
 
@@ -463,10 +466,22 @@ document.addEventListener("DOMContentLoaded", () => {
   $$("[data-theme-toggle]").forEach((b) => b.addEventListener("click", toggleTheme));
 
   // мобильное меню
-  const nav = $("#app-nav");
   const backdrop = $("#backdrop");
   $("#btn-menu").addEventListener("click", openDrawer);
+  $("#btn-close-nav").addEventListener("click", closeDrawer);
   backdrop.addEventListener("click", closeDrawer);
+
+  // Клик по пункту меню: навигация + гарантированное закрытие
+  $$(".nav-link").forEach((n) => n.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigate(n.dataset.page);
+  }));
+
+  // Пункты, ведущие на страницу (кнопки «Нужна помощь», карточки на главной)
+  $$("[data-goto]").forEach((b) => b.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigate(b.dataset.goto);
+  }));
 
   // Escape закрывает меню (удобно при подключённой клавиатуре/на планшете)
   document.addEventListener("keydown", (e) => {

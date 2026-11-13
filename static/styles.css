@@ -220,6 +220,29 @@ input[type="email"]:focus, input[type="password"]:focus {
 .nav-link:hover { background: var(--surface-2); color: var(--ink); }
 .nav-link.active { background: var(--primary-soft); color: var(--primary-ink); font-weight: 600; }
 
+/* --- иконка-гамбургер: три полоски --- */
+.burger { display: flex; flex-direction: column; justify-content: center; gap: 4px; width: 20px; height: 20px; }
+.burger-bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+/* При открытом меню полоски превращаются в крестик */
+.menu-btn[aria-expanded="true"] .burger-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-btn[aria-expanded="true"] .burger-bar:nth-child(2) { opacity: 0; }
+.menu-btn[aria-expanded="true"] .burger-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* Мобильное меню по умолчанию не показываем */
+.app-nav--drawer { display: none; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; }
+.drawer-title { font-weight: 600; font-size: 16px; color: var(--ink); }
+.drawer-close { width: 38px; height: 38px; flex: none; }
+.drawer-close svg { width: 20px; height: 20px; }
+.drawer-footer { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+
 .app-bar-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .user-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 13px; }
 .user-menu .js-user-email { color: var(--muted); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -233,7 +256,7 @@ input[type="email"]:focus, input[type="password"]:focus {
   position: fixed;
   inset: 0;
   background: rgba(16, 24, 40, 0.45);
-  z-index: 55;
+  z-index: 65;
 }
 
 /* ---------- контент ---------- */
@@ -372,7 +395,10 @@ body.drawer-open { overflow: hidden; }
   .app-bar-actions { flex: none; gap: 8px; }
   .theme-toggle { width: 40px; height: 40px; flex: none; }
 
-  .app-nav {
+  /* Десктопную навигацию прячем, показываем выдвижную */
+  .app-nav--desktop { display: none; }
+  .app-nav--drawer {
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
@@ -388,16 +414,15 @@ body.drawer-open { overflow: hidden; }
     padding: calc(16px + env(safe-area-inset-top)) 14px
              calc(16px + env(safe-area-inset-bottom));
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    z-index: 60;
+    transition: transform 0.25s ease, visibility 0.25s;
+    z-index: 70;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
     /* когда меню закрыто — не перехватываем фокус и тапы */
     visibility: hidden;
   }
-  .app-nav.open { transform: translateX(0); visibility: visible; }
-  .app-nav-footer { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .app-nav--drawer.open { transform: translateX(0); visibility: visible; }
   .nav-link { padding: 13px 12px; font-size: 15px; min-height: 44px; }
   .backdrop.visible { display: block; }
 
