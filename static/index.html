@@ -11,15 +11,21 @@
   <!-- ===================== ЭКРАН АВТОРИЗАЦИИ ===================== -->
   <section id="auth-screen" class="auth-screen">
     <div class="auth-card">
-      <h1 class="brand">🌿 Самопомощь</h1>
-      <p class="auth-subtitle">Первичная психологическая поддержка и мониторинг состояния</p>
+      <div class="auth-brand">
+        <span class="logo logo-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20C4 11 10 4 20 4c0 10-7 16-16 16Z"/><path d="M5 19c2-5 5-8 10-10"/></svg>
+        </span>
+        <div>
+          <h1 class="brand">Самопомощь</h1>
+          <p class="auth-subtitle">Первичная психологическая поддержка и мониторинг состояния</p>
+        </div>
+      </div>
 
       <div class="tabs" role="tablist">
         <button class="tab active" data-tab="login" role="tab">Вход</button>
         <button class="tab" data-tab="register" role="tab">Регистрация</button>
       </div>
 
-      <!-- Вход -->
       <form id="login-form" class="auth-form" data-auth="login">
         <label>Email
           <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
@@ -30,7 +36,6 @@
         <button type="submit" class="btn btn-primary">Войти</button>
       </form>
 
-      <!-- Регистрация -->
       <form id="register-form" class="auth-form hidden" data-auth="register">
         <label>Email
           <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" />
@@ -53,25 +58,49 @@
 
   <!-- ===================== ПРИЛОЖЕНИЕ ===================== -->
   <div id="app" class="app hidden">
-    <aside class="sidebar">
-      <div class="brand sidebar-brand">🌿 Самопомощь</div>
+    <!-- Боковая панель (на мобильных превращается в выдвижное меню) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20C4 11 10 4 20 4c0 10-7 16-16 16Z"/><path d="M5 19c2-5 5-8 10-10"/></svg>
+        </span>
+        Самопомощь
+      </div>
+
       <nav class="nav">
-        <button class="nav-link active" data-page="dashboard">🏠 Главная</button>
-        <button class="nav-link" data-page="diary">📖 Дневник</button>
-        <button class="nav-link" data-page="tests">📝 Тесты</button>
-        <button class="nav-link" data-page="techniques">🧘 Техники КПТ</button>
-        <button class="nav-link" data-page="progress">📈 Динамика</button>
-        <button class="nav-link" data-page="psychologists">👩‍⚕️ Психологи</button>
-        <button class="nav-link" data-page="report">📄 Отчёт</button>
+        <button class="nav-link active" data-page="dashboard"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg></span>Главная</button>
+        <button class="nav-link" data-page="diary"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>Дневник</button>
+        <button class="nav-link" data-page="tests"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>Тесты</button>
+        <button class="nav-link" data-page="techniques"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9a3 3 0 1 0-3-3"/><path d="M3 12h13a3 3 0 1 1-3 3"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg></span>Техники КПТ</button>
+        <button class="nav-link" data-page="progress"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 4 3 5-6"/></svg></span>Динамика</button>
+        <button class="nav-link" data-page="psychologists"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Психологи</button>
+        <button class="nav-link" data-page="report"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></span>Отчёт</button>
       </nav>
+
       <div class="sidebar-footer">
-        <button class="btn btn-crisis" id="btn-crisis-nav">🆘 Нужна помощь</button>
+        <button class="btn btn-crisis" data-goto="crisis">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg></span>
+          Нужна помощь
+        </button>
         <div class="user-box">
           <span id="user-email"></span>
           <button class="link" id="btn-logout">Выйти</button>
         </div>
       </div>
     </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <!-- Мобильная верхняя панель -->
+    <header class="mobile-bar">
+      <button class="icon-btn" id="btn-menu" aria-label="Меню">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="mobile-brand">Самопомощь</div>
+      <button class="icon-btn icon-btn-crisis" id="btn-crisis-top" aria-label="Нужна помощь" data-goto="crisis">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg>
+      </button>
+    </header>
 
     <main class="main">
       <header class="topbar">
@@ -116,9 +145,7 @@
                 <span id="diary-mood-value">5</span>
               </label>
               <div class="diary-actions">
-                <button class="btn" id="btn-voice" title="Голосовой ввод (транскрибация — точка подключения)">
-                  🎙 Голос
-                </button>
+                <button class="btn" id="btn-voice" title="Голосовой ввод (транскрибация — точка подключения)">Голос</button>
                 <button class="btn btn-primary" id="btn-save-entry">Сохранить и проанализировать</button>
               </div>
             </div>
@@ -138,9 +165,9 @@
       <section class="page" data-page="tests">
         <div class="card">
           <h3>Выберите шкалу</h3>
-          <div class="tabs">
-            <button class="tab active" data-scale="gad7">GAD-7 (тревога)</button>
-            <button class="tab" data-scale="phq9">PHQ-9 (депрессия)</button>
+          <div class="tabs tabs-segmented">
+            <button class="tab active" data-scale="gad7">GAD-7 · тревога</button>
+            <button class="tab" data-scale="phq9">PHQ-9 · депрессия</button>
           </div>
           <div id="test-body">
             <p>Выберите шкалу и ответьте на вопросы.</p>
@@ -160,12 +187,12 @@
       <section class="page" data-page="progress">
         <div class="card">
           <h3>Настроение по дневнику</h3>
-          <canvas id="chart-mood" width="640" height="240"></canvas>
+          <canvas id="chart-mood"></canvas>
           <p id="mood-empty" class="hint">Данных пока нет — добавьте запись с оценкой настроения.</p>
         </div>
         <div class="card">
           <h3>Баллы по шкалам (GAD-7 / PHQ-9)</h3>
-          <canvas id="chart-tests" width="640" height="240"></canvas>
+          <canvas id="chart-tests"></canvas>
           <p id="tests-empty" class="hint">Данных пока нет — пройдите тест.</p>
         </div>
       </section>
@@ -192,7 +219,7 @@
       <!-- Кризисная помощь -->
       <section class="page" data-page="crisis">
         <div class="card crisis-card">
-          <h3>🆘 Экстренная помощь</h3>
+          <h3>Экстренная помощь</h3>
           <p class="crisis-disclaimer" id="crisis-disclaimer"></p>
           <div id="crisis-contacts" class="list"></div>
           <button class="btn" data-goto="diary">Вернуться к дневнику</button>

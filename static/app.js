@@ -124,6 +124,7 @@ const PAGE_TITLES = {
 
 function navigate(page) {
   state.page = page;
+  closeDrawer();
   $$(".page").forEach((p) => p.classList.toggle("active", p.dataset.page === page));
   $$(".nav-link").forEach((n) => n.classList.toggle("active", n.dataset.page === page));
   $("#page-title").textContent = PAGE_TITLES[page] || "Самопомощь";
@@ -137,6 +138,13 @@ function navigate(page) {
     crisis: loadCrisis,
   };
   if (loaders[page]) loaders[page]();
+}
+
+function closeDrawer() {
+  const sidebar = $("#sidebar");
+  const backdrop = $("#backdrop");
+  if (sidebar) sidebar.classList.remove("open");
+  if (backdrop) backdrop.classList.remove("visible");
 }
 
 /* ---------- dashboard ---------- */
@@ -272,29 +280,32 @@ async function loadProgress() {
     const tests = data.tests || [];
     $("#mood-empty").classList.toggle("hidden", mood.length > 0);
     $("#tests-empty").classList.toggle("hidden", tests.length > 0);
-    drawLineChart($("#chart-mood"), mood.map((m) => m.value), mood.map((m) => m.t), { min: 1, max: 10, color: "#2f855a" });
+    drawLineChart($("#chart-mood"), mood.map((m) => m.value), mood.map((m) => m.t), { min: 1, max: 10, color: "#2f6a5e" });
     const gad7 = tests.filter((t) => t.scale === "gad7").map((t) => t.score);
     const phq9 = tests.filter((t) => t.scale === "phq9").map((t) => t.score);
     const labels = tests.map((t) => t.t);
-    drawLineChart($("#chart-tests"), gad7, labels, { min: 0, max: 27, color: "#2b6cb0", second: phq9, secondColor: "#c53030" });
+    drawLineChart($("#chart-tests"), gad7, labels, { min: 0, max: 27, color: "#b9743f", second: phq9, secondColor: "#b3402f" });
   } catch (err) { toast(err.message); }
 }
 
 function drawLineChart(canvas, values, labels, opts = {}) {
   const ctx = canvas.getContext("2d");
-  const W = canvas.width, H = canvas.height;
+  const W = canvas.clientWidth || 640;
+  const H = canvas.clientHeight || 240;
+  if (canvas.width !== W) canvas.width = W;
+  if (canvas.height !== H) canvas.height = H;
   ctx.clearRect(0, 0, W, H);
   const pad = { l: 40, r: 12, t: 12, b: 28 };
   const innerW = W - pad.l - pad.r, innerH = H - pad.t - pad.b;
   const min = opts.min ?? 0, max = opts.max ?? 10;
 
   // оси
-  ctx.strokeStyle = "#e2e8f0"; ctx.lineWidth = 1;
+  ctx.strokeStyle = "#e6ddd0"; ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + innerH);
   ctx.lineTo(pad.l + innerW, pad.t + innerH);
   ctx.stroke();
-  ctx.fillStyle = "#718096"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+  ctx.fillStyle = "#877d6f"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
   for (let i = 0; i <= 4; i++) {
     const y = pad.t + (innerH * i) / 4;
     const v = max - ((max - min) * i) / 4;
@@ -319,12 +330,12 @@ function drawLineChart(canvas, values, labels, opts = {}) {
       ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
     });
   };
-  plot(values, opts.color || "#2f855a");
-  if (opts.second) plot(opts.second, opts.secondColor || "#c53030");
+  plot(values, opts.color || "#2f6a5e");
+  if (opts.second) plot(opts.second, opts.secondColor || "#b3402f");
 
   // подписи по X (сокращённо)
   if (labels && labels.length) {
-    ctx.fillStyle = "#718096"; ctx.textAlign = "center";
+    ctx.fillStyle = "#877d6f"; ctx.textAlign = "center";
     const step = innerW / Math.max(1, labels.length - 1);
     labels.forEach((l, i) => {
       const short = (l || "").slice(5, 10);
@@ -393,7 +404,24 @@ document.addEventListener("DOMContentLoaded", () => {
   $$(".nav-link").forEach((n) => n.addEventListener("click", () => navigate(n.dataset.page)));
   $$("[data-goto]").forEach((b) => b.addEventListener("click", () => navigate(b.dataset.goto)));
   $("#btn-logout").addEventListener("click", () => { api("POST", "/api/logout", {}).catch(() => {}); logout(); });
-  $("#btn-crisis-nav").addEventListener("click", () => navigate("crisis"));
+
+  // мобильное меню
+  const sidebar = $("#sidebar");
+  const backdrop = $("#backdrop");
+  $("#btn-menu").addEventListener("click", () => {
+    sidebar.classList.add("open");
+    backdrop.classList.add("visible");
+  });
+  backdrop.addEventListener("click", closeDrawer);
+
+  // перерисовка графиков при повороте экрана / изменении ширины окна
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (state.page === "progress") loadProgress();
+    }, 150);
+  });
 
   $$("#tests .tab").forEach((t) => t.addEventListener("click", () => {
     $$("#tests .tab").forEach((x) => x.classList.toggle("active", x === t));
