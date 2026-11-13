@@ -27,3 +27,7 @@ SESSION_TTL_SECONDS = 60 * 60 * 24 * 7  # 7 дней
 
 def ensure_dirs():
     os.makedirs(DATA_DIR, exist_ok=True)
+    # Если БД вынесена в другое место — создаём и её каталог.
+    db_dir = os.path.dirname(os.path.abspath(DB_PATH))
+    if db_dir:
+        os.makedirs(db_dir, exist_ok=True)

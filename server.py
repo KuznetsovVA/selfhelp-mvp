@@ -122,16 +122,30 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     config.ensure_dirs()
-    httpd = ThreadingHTTPServer((config.HOST, config.PORT), Handler)
-    print(f"Сервис запущен: http://{config.HOST}:{config.PORT}")
-    print("Остановка — Ctrl+C")
+    try:
+        httpd = ThreadingHTTPServer((config.HOST, config.PORT), Handler)
+    except OSError as e:
+        # Порт уже занят — вероятно, сервер уже запущен в другом окне.
+        if getattr(e, "errno", None) in (98, 10048):
+            print(f"Порт {config.PORT} уже занят.")
+            print("Похоже, сервер уже запущен. Откройте:")
+            print(f"  http://127.0.0.1:{config.PORT}")
+            print("Если это не так — закройте другое окно с сервером и попробуйте снова.")
+            return 1
+        raise
+    print("=" * 52)
+    print("  Сервис «Самопомощь» запущен")
+    print(f"  http://127.0.0.1:{config.PORT}")
+    print("  Остановка — Ctrl+C")
+    print("=" * 52)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         print("\nОстановлено.")
     finally:
         httpd.server_close()
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
