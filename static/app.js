@@ -66,8 +66,15 @@ function setToken(token) {
 function logout(notify = true) {
   state.token = null;
   localStorage.removeItem(TOKEN_KEY);
+  // Сбрасываем состояние, чтобы после повторного входа не показывались старые данные
+  state.page = "dashboard";
+  progressData = null;
+  closeDrawer();
   $("#app").classList.add("hidden");
   $("#auth-screen").classList.remove("hidden");
+  $("#auth-error").classList.add("hidden");
+  $("#login-password").value = "";
+  const di = $("#diary-text"); if (di) di.value = "";
   if (notify) toast("Вы вышли из аккаунта");
 }
 
@@ -140,6 +147,8 @@ function navigate(page) {
   $$(".page").forEach((p) => p.classList.toggle("active", p.dataset.page === page));
   $$(".nav-link").forEach((n) => n.classList.toggle("active", n.dataset.page === page));
   $("#page-title").textContent = PAGE_TITLES[page] || "Самопомощь";
+  // Прокрутка к началу страницы: на телефоне иначе остаёшься в середине.
+  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
   const loaders = {
     dashboard: loadDashboard,
     diary: loadDiary,
@@ -157,6 +166,19 @@ function closeDrawer() {
   const backdrop = $("#backdrop");
   if (nav) nav.classList.remove("open");
   if (backdrop) backdrop.classList.remove("visible");
+  document.body.classList.remove("drawer-open");
+}
+
+function openDrawer() {
+  const nav = $("#app-nav");
+  const backdrop = $("#backdrop");
+  if (nav) nav.classList.add("open");
+  if (backdrop) backdrop.classList.add("visible");
+  document.body.classList.add("drawer-open");
+}
+
+function isMobile() {
+  return window.matchMedia("(max-width: 960px)").matches;
 }
 
 /* ---------- dashboard ---------- */
@@ -285,27 +307,43 @@ async function loadTechniques() {
 }
 
 /* ---------- progress ---------- */
+let progressData = null;
+
 async function loadProgress() {
   try {
     const data = await api("GET", "/api/progress");
-    const mood = data.mood || [];
-    const tests = data.tests || [];
-    $("#mood-empty").classList.toggle("hidden", mood.length > 0);
-    $("#tests-empty").classList.toggle("hidden", tests.length > 0);
-    drawLineChart($("#chart-mood"), mood.map((m) => m.value), mood.map((m) => m.t), { min: 1, max: 10, color: cssVar("--primary") });
-    const gad7 = tests.filter((t) => t.scale === "gad7").map((t) => t.score);
-    const phq9 = tests.filter((t) => t.scale === "phq9").map((t) => t.score);
-    const labels = tests.map((t) => t.t);
-    drawLineChart($("#chart-tests"), gad7, labels, { min: 0, max: 27, color: cssVar("--primary"), second: phq9, secondColor: cssVar("--danger") });
+    progressData = data;
+    // На мобильных страница может ещё не иметь размеров в момент отрисовки,
+    // поэтому ждём следующего кадра.
+    requestAnimationFrame(() => renderProgress());
   } catch (err) { toast(err.message); }
 }
 
+function renderProgress() {
+  const data = progressData;
+  if (!data) return;
+  const mood = data.mood || [];
+  const tests = data.tests || [];
+  $("#mood-empty").classList.toggle("hidden", mood.length > 0);
+  $("#tests-empty").classList.toggle("hidden", tests.length > 0);
+  drawLineChart($("#chart-mood"), mood.map((m) => m.value), mood.map((m) => m.t), { min: 1, max: 10, color: cssVar("--primary") });
+  const gad7 = tests.filter((t) => t.scale === "gad7").map((t) => t.score);
+  const phq9 = tests.filter((t) => t.scale === "phq9").map((t) => t.score);
+  const labels = tests.map((t) => t.t);
+  drawLineChart($("#chart-tests"), gad7, labels, { min: 0, max: 27, color: cssVar("--primary"), second: phq9, secondColor: cssVar("--danger") });
+}
+
 function drawLineChart(canvas, values, labels, opts = {}) {
+  if (!canvas) return;
+  // При скрытой странице clientWidth равен 0 — fallback на ширину контейнера.
+  const rect = canvas.getBoundingClientRect();
+  const W = Math.max(240, Math.round(rect.width || canvas.parentElement?.clientWidth || 640));
+  const H = Math.max(160, Math.round(rect.height || 240));
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
   const ctx = canvas.getContext("2d");
-  const W = canvas.clientWidth || 640;
-  const H = canvas.clientHeight || 240;
-  if (canvas.width !== W) canvas.width = W;
-  if (canvas.height !== H) canvas.height = H;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
   const pad = { l: 40, r: 12, t: 12, b: 28 };
   const innerW = W - pad.l - pad.r, innerH = H - pad.t - pad.b;
@@ -345,11 +383,14 @@ function drawLineChart(canvas, values, labels, opts = {}) {
   plot(values, opts.color || cssVar("--primary"));
   if (opts.second) plot(opts.second, opts.secondColor || cssVar("--danger"));
 
-  // подписи по X (сокращённо)
+  // подписи по X: на узком экране показываем не каждую, чтобы не наезжали
   if (labels && labels.length) {
     ctx.fillStyle = cssVar("--muted"); ctx.textAlign = "center";
     const step = innerW / Math.max(1, labels.length - 1);
+    const maxLabels = W < 420 ? 4 : labels.length;
+    const skip = Math.max(1, Math.ceil(labels.length / maxLabels));
     labels.forEach((l, i) => {
+      if (i % skip !== 0 && i !== labels.length - 1) return;
       const short = (l || "").slice(5, 10);
       ctx.fillText(short, pad.l + step * i, H - 8);
     });
@@ -424,19 +465,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // мобильное меню
   const nav = $("#app-nav");
   const backdrop = $("#backdrop");
-  $("#btn-menu").addEventListener("click", () => {
-    nav.classList.add("open");
-    backdrop.classList.add("visible");
-  });
+  $("#btn-menu").addEventListener("click", openDrawer);
   backdrop.addEventListener("click", closeDrawer);
+
+  // Escape закрывает меню (удобно при подключённой клавиатуре/на планшете)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDrawer();
+  });
+
+  // При переходе на десктопную ширину меню должно «раскрыться» обратно
+  window.addEventListener("resize", () => {
+    if (!isMobile()) closeDrawer();
+  });
 
   // перерисовка графиков при повороте экрана / изменении ширины окна
   let resizeTimer;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      if (state.page === "progress") loadProgress();
+      if (state.page === "progress") renderProgress();
     }, 150);
+  });
+
+  // На мобильных Safari адресная строка меняет высоту — пересчитываем графики
+  window.addEventListener("orientationchange", () => {
+    setTimeout(() => { if (state.page === "progress") renderProgress(); }, 300);
   });
 
   $$("#tests .tab").forEach((t) => t.addEventListener("click", () => {

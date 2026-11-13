@@ -110,9 +110,10 @@
       </nav>
 
       <div class="app-bar-actions">
-        <button class="btn btn-crisis desktop-only" data-goto="crisis">
+        <!-- Кнопка экстренной помощи доступна всегда: на телефоне остаётся только иконка -->
+        <button class="btn btn-crisis crisis-action" data-goto="crisis" aria-label="Нужна помощь">
           <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg></span>
-          Нужна помощь
+          <span class="crisis-label">Нужна помощь</span>
         </button>
         <button class="theme-toggle" data-theme-toggle aria-label="Переключить тему">
           <span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span>
