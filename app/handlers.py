@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 from . import auth, scales, seeds, storage
-from .ai_engine import engine
+from .analysis import engine
 
 
 class ApiError(Exception):

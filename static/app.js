@@ -16,6 +16,18 @@ const state = {
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+  if (state.page === "progress") loadProgress();
+}
+
 function escapeHtml(str) {
   return String(str ?? "")
     .replaceAll("&", "&amp;")
@@ -103,7 +115,7 @@ async function doRegister(e) {
 }
 
 function enterApp(user) {
-  $("#user-email").textContent = user.email;
+  $$(".js-user-email").forEach((el) => (el.textContent = user.email));
   $("#auth-screen").classList.add("hidden");
   $("#app").classList.remove("hidden");
   navigate("dashboard");
@@ -141,9 +153,9 @@ function navigate(page) {
 }
 
 function closeDrawer() {
-  const sidebar = $("#sidebar");
+  const nav = $("#app-nav");
   const backdrop = $("#backdrop");
-  if (sidebar) sidebar.classList.remove("open");
+  if (nav) nav.classList.remove("open");
   if (backdrop) backdrop.classList.remove("visible");
 }
 
@@ -280,11 +292,11 @@ async function loadProgress() {
     const tests = data.tests || [];
     $("#mood-empty").classList.toggle("hidden", mood.length > 0);
     $("#tests-empty").classList.toggle("hidden", tests.length > 0);
-    drawLineChart($("#chart-mood"), mood.map((m) => m.value), mood.map((m) => m.t), { min: 1, max: 10, color: "#2f6a5e" });
+    drawLineChart($("#chart-mood"), mood.map((m) => m.value), mood.map((m) => m.t), { min: 1, max: 10, color: cssVar("--primary") });
     const gad7 = tests.filter((t) => t.scale === "gad7").map((t) => t.score);
     const phq9 = tests.filter((t) => t.scale === "phq9").map((t) => t.score);
     const labels = tests.map((t) => t.t);
-    drawLineChart($("#chart-tests"), gad7, labels, { min: 0, max: 27, color: "#b9743f", second: phq9, secondColor: "#b3402f" });
+    drawLineChart($("#chart-tests"), gad7, labels, { min: 0, max: 27, color: cssVar("--primary"), second: phq9, secondColor: cssVar("--danger") });
   } catch (err) { toast(err.message); }
 }
 
@@ -300,12 +312,12 @@ function drawLineChart(canvas, values, labels, opts = {}) {
   const min = opts.min ?? 0, max = opts.max ?? 10;
 
   // оси
-  ctx.strokeStyle = "#e6ddd0"; ctx.lineWidth = 1;
+  ctx.strokeStyle = cssVar("--border"); ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + innerH);
   ctx.lineTo(pad.l + innerW, pad.t + innerH);
   ctx.stroke();
-  ctx.fillStyle = "#877d6f"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+  ctx.fillStyle = cssVar("--muted"); ctx.font = "11px sans-serif"; ctx.textAlign = "right";
   for (let i = 0; i <= 4; i++) {
     const y = pad.t + (innerH * i) / 4;
     const v = max - ((max - min) * i) / 4;
@@ -330,12 +342,12 @@ function drawLineChart(canvas, values, labels, opts = {}) {
       ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
     });
   };
-  plot(values, opts.color || "#2f6a5e");
-  if (opts.second) plot(opts.second, opts.secondColor || "#b3402f");
+  plot(values, opts.color || cssVar("--primary"));
+  if (opts.second) plot(opts.second, opts.secondColor || cssVar("--danger"));
 
   // подписи по X (сокращённо)
   if (labels && labels.length) {
-    ctx.fillStyle = "#877d6f"; ctx.textAlign = "center";
+    ctx.fillStyle = cssVar("--muted"); ctx.textAlign = "center";
     const step = innerW / Math.max(1, labels.length - 1);
     labels.forEach((l, i) => {
       const short = (l || "").slice(5, 10);
@@ -404,12 +416,16 @@ document.addEventListener("DOMContentLoaded", () => {
   $$(".nav-link").forEach((n) => n.addEventListener("click", () => navigate(n.dataset.page)));
   $$("[data-goto]").forEach((b) => b.addEventListener("click", () => navigate(b.dataset.goto)));
   $("#btn-logout").addEventListener("click", () => { api("POST", "/api/logout", {}).catch(() => {}); logout(); });
+  $("#btn-logout-mobile").addEventListener("click", () => { api("POST", "/api/logout", {}).catch(() => {}); logout(); });
+
+  // тема
+  $$("[data-theme-toggle]").forEach((b) => b.addEventListener("click", toggleTheme));
 
   // мобильное меню
-  const sidebar = $("#sidebar");
+  const nav = $("#app-nav");
   const backdrop = $("#backdrop");
   $("#btn-menu").addEventListener("click", () => {
-    sidebar.classList.add("open");
+    nav.classList.add("open");
     backdrop.classList.add("visible");
   });
   backdrop.addEventListener("click", closeDrawer);

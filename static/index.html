@@ -1,18 +1,33 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Самопомощь — ИИС психологической самопомощи</title>
   <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="/styles.css" />
+  <script>
+    // Применяем тему до отрисовки, чтобы не было «мигания».
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
 </head>
 <body>
-  <!-- ===================== ЭКРАН АВТОРИЗАЦИИ ===================== -->
+  <!-- ===================== АВТОРИЗАЦИЯ ===================== -->
   <section id="auth-screen" class="auth-screen">
+    <button class="theme-toggle theme-toggle-float" data-theme-toggle aria-label="Переключить тему">
+      <span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span>
+      <span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
+    </button>
+
     <div class="auth-card">
       <div class="auth-brand">
-        <span class="logo logo-lg">
+        <span class="logo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20C4 11 10 4 20 4c0 10-7 16-16 16Z"/><path d="M5 19c2-5 5-8 10-10"/></svg>
         </span>
         <div>
@@ -58,16 +73,22 @@
 
   <!-- ===================== ПРИЛОЖЕНИЕ ===================== -->
   <div id="app" class="app hidden">
-    <!-- Боковая панель (на мобильных превращается в выдвижное меню) -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
+    <header class="app-bar">
+      <button class="menu-btn icon-btn" id="btn-menu" aria-label="Меню">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+
+      <div class="app-brand">
         <span class="logo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20C4 11 10 4 20 4c0 10-7 16-16 16Z"/><path d="M5 19c2-5 5-8 10-10"/></svg>
         </span>
-        Самопомощь
+        <div class="app-brand-text">
+          <span class="app-brand-name">Самопомощь</span>
+          <span class="app-brand-sub">Личный кабинет</span>
+        </div>
       </div>
 
-      <nav class="nav">
+      <nav class="app-nav" id="app-nav">
         <button class="nav-link active" data-page="dashboard"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg></span>Главная</button>
         <button class="nav-link" data-page="diary"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>Дневник</button>
         <button class="nav-link" data-page="tests"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>Тесты</button>
@@ -75,37 +96,41 @@
         <button class="nav-link" data-page="progress"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 4 3 5-6"/></svg></span>Динамика</button>
         <button class="nav-link" data-page="psychologists"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Психологи</button>
         <button class="nav-link" data-page="report"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></span>Отчёт</button>
+
+        <div class="app-nav-footer mobile-only">
+          <button class="btn btn-crisis" data-goto="crisis">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg></span>
+            Нужна помощь
+          </button>
+          <div class="user-box">
+            <span class="js-user-email"></span>
+            <button class="link" id="btn-logout-mobile">Выйти</button>
+          </div>
+        </div>
       </nav>
 
-      <div class="sidebar-footer">
-        <button class="btn btn-crisis" data-goto="crisis">
+      <div class="app-bar-actions">
+        <button class="btn btn-crisis desktop-only" data-goto="crisis">
           <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg></span>
           Нужна помощь
         </button>
-        <div class="user-box">
-          <span id="user-email"></span>
+        <button class="theme-toggle" data-theme-toggle aria-label="Переключить тему">
+          <span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span>
+          <span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
+        </button>
+        <div class="user-menu desktop-only">
+          <span class="js-user-email"></span>
           <button class="link" id="btn-logout">Выйти</button>
         </div>
       </div>
-    </aside>
+    </header>
 
     <div class="backdrop" id="backdrop"></div>
 
-    <!-- Мобильная верхняя панель -->
-    <header class="mobile-bar">
-      <button class="icon-btn" id="btn-menu" aria-label="Меню">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-      </button>
-      <div class="mobile-brand">Самопомощь</div>
-      <button class="icon-btn icon-btn-crisis" id="btn-crisis-top" aria-label="Нужна помощь" data-goto="crisis">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg>
-      </button>
-    </header>
-
     <main class="main">
-      <header class="topbar">
+      <div class="page-head">
         <h2 id="page-title">Главная</h2>
-      </header>
+      </div>
 
       <!-- Главная -->
       <section class="page active" data-page="dashboard">
